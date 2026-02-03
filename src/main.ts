@@ -28,7 +28,7 @@ async function OnImageChange(file: File, canvas: HTMLCanvasElement) {
   drawBinImage(binImg, extraCanvas);
 }
 
-function drawBinImage(binImage: boolean[][], canvas: HTMLCanvasElement) {
+function drawBinImage(binImage: number[][], canvas: HTMLCanvasElement) {
   var ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
   var w = binImage[0].length;
   var h = binImage.length;
@@ -43,7 +43,8 @@ function drawBinImage(binImage: boolean[][], canvas: HTMLCanvasElement) {
   for (let y = 0; y < h; y++) {
     for (let x = 0; x < w; x++) {
       let isWhite = binImage[y][x];
-      let color = (isWhite) ? 255 : 0;
+      //let color = (isWhite) ? 255 : 0;
+      let color = isWhite;
       let index = 4 * (y * w + x);
 
       imgData.data[index] = color;
