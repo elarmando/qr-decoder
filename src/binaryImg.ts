@@ -1,6 +1,6 @@
 export default class BinaryImg {
   public static create(data: ImageData): number[][] {
-    let blockSize = 32;
+    let blockSize = 8;
     let newMatrix: number[][] = [];
     let grayImg = createGrayImg(data)
     let w = data.width;
@@ -11,19 +11,10 @@ export default class BinaryImg {
       let row_range = calcBlockBound(y, blockSize, h);
 
       for (let x = 0; x < w; x++) {
-
         let col_range = calcBlockBound(x, blockSize, w);
-        //console.log("x" + x + " y " + y);
         let avg = calcAvg(grayImg, w, h, col_range.start, col_range.end, row_range.start, row_range.end);
-        let c = 4;
-        let is_white = grayImg[y * w + x] > (avg - c);
+        let is_white = grayImg[y * w + x] > avg;
         let val = is_white ? 255 : 0;
-
-        /*
-        if (!is_white) {
-          console.log("x " + x + " y " + y + " avg " + avg)
-        }
-        */
 
         row.push(val);
       }
@@ -35,18 +26,24 @@ export default class BinaryImg {
 }
 
 function calcAvg(img: Uint8Array, w: number, h: number, col_start: number, col_end: number, row_start: number, row_end: number) {
-  let sum = 0;
   let size = ((col_end - col_start + 1) * (row_end - row_start + 1));
-  let block = [];
+  var min = 255;
+  var max = 0;
+
 
   for (let y = row_start; y <= row_end; y++) {
     for (let x = col_start; x <= col_end; x++) {
-      sum += img[y * w + x];
-      block.push(img[y * w + x]);
+      var color = img[y * w + x];
+
+      if (color < min)
+        min = color;
+
+      if (color > max)
+        max = color;
     }
   }
 
-  return sum / size;
+  return (max - min) / 2.0;
 }
 
 function calcBlockBound(pos: number, blockSize: number, limit: number) {

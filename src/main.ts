@@ -1,4 +1,5 @@
 import BinaryImg from "./binaryImg";
+import PatternFinder from "./patternFinder";
 
 window.onload = function () {
   Start();
@@ -9,7 +10,7 @@ function Start() {
   var canvas = document.querySelector("#canvas") as HTMLCanvasElement;;
 
   inputImg.addEventListener("change", () => {
-    var file = inputImg.files[0];
+    var file = inputImg?.files?.[0];
 
     if (!file)
       return;
@@ -26,6 +27,13 @@ async function OnImageChange(file: File, canvas: HTMLCanvasElement) {
   var extraCanvas = document.querySelector("#extra-canvas") as HTMLCanvasElement;
 
   drawBinImage(binImg, extraCanvas);
+
+  var imgData = getImgDataFromCanvas(extraCanvas);
+  var patternFinder = new PatternFinder();
+
+  drawLine(extraCanvas, 150);
+  var line = patternFinder.countColorLine(imgData, 150);
+  console.log(line);
 }
 
 function drawBinImage(binImage: number[][], canvas: HTMLCanvasElement) {
@@ -35,8 +43,6 @@ function drawBinImage(binImage: number[][], canvas: HTMLCanvasElement) {
 
   canvas.width = w;
   canvas.height = h;
-
-  console.log("width " + w + " height " + h);
 
   var imgData = ctx.createImageData(w, h);
 
@@ -56,6 +62,29 @@ function drawBinImage(binImage: number[][], canvas: HTMLCanvasElement) {
   }
 
   ctx.putImageData(imgData, 0, 0);
+}
+
+function drawLine(canvas: HTMLCanvasElement, row: number) {
+  var ctx = canvas.getContext("2d");
+
+  if (!ctx)
+    throw new Error("cant get context 2d");
+
+  ctx.beginPath();
+  ctx.moveTo(0, row);
+  ctx.lineTo(canvas.width, row);
+  ctx.stroke();
+}
+
+
+function getImgDataFromCanvas(canvas: HTMLCanvasElement): ImageData {
+  var ctx = canvas.getContext("2d");
+  var imgdata = ctx?.getImageData(0, 0, canvas.width, canvas.height);
+
+  if (imgdata === undefined)
+    throw new Error("cant get imgdata from " + canvas);
+
+  return imgdata;
 }
 
 function getImgData(file: any, canvas: HTMLCanvasElement): Promise<ImageData> {
